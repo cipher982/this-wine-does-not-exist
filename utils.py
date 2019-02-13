@@ -11,8 +11,8 @@ def simple_get(url):
             else:
                 return None
 
-    except RequestException as e:
-        log_error('Error during requests to {0} : {1}'.format(url, str(e)))
+    except:
+        log_error('Error during requests to {0}'.format(url))
         return None
 
 
