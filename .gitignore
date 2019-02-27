@@ -1,2 +1,5 @@
 .DS_Store
 wine/
+data/wine_pages
+.wine
+.wine/
