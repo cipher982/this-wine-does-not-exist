@@ -3,3 +3,5 @@ wine/
 data/wine_pages
 .wine
 .wine/
+.wine_mac
+.venv
