@@ -5,3 +5,4 @@ data/wine_pages
 .wine/
 .wine_mac
 .venv
+.venv_w10
