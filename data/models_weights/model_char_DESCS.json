@@ -1,0 +1,245 @@
+{
+    "class_name": "Model",
+    "config": {
+        "name": "model",
+        "layers": [
+            {
+                "name": "seed",
+                "class_name": "InputLayer",
+                "config": {
+                    "batch_input_shape": [
+                        1024,
+                        200
+                    ],
+                    "dtype": "int32",
+                    "sparse": false,
+                    "name": "seed"
+                },
+                "inbound_nodes": []
+            },
+            {
+                "name": "embedding",
+                "class_name": "Embedding",
+                "config": {
+                    "name": "embedding",
+                    "trainable": true,
+                    "batch_input_shape": [
+                        null,
+                        null
+                    ],
+                    "dtype": "float32",
+                    "input_dim": 256,
+                    "output_dim": 512,
+                    "embeddings_initializer": {
+                        "class_name": "RandomUniform",
+                        "config": {
+                            "minval": -0.05,
+                            "maxval": 0.05,
+                            "seed": null,
+                            "dtype": "float32"
+                        }
+                    },
+                    "embeddings_regularizer": null,
+                    "activity_regularizer": null,
+                    "embeddings_constraint": null,
+                    "mask_zero": false,
+                    "input_length": null
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "seed",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "lstm",
+                "class_name": "LSTM",
+                "config": {
+                    "name": "lstm",
+                    "trainable": true,
+                    "dtype": "float32",
+                    "return_sequences": true,
+                    "return_state": false,
+                    "go_backwards": false,
+                    "stateful": false,
+                    "unroll": false,
+                    "units": 512,
+                    "activation": "tanh",
+                    "recurrent_activation": "hard_sigmoid",
+                    "use_bias": true,
+                    "kernel_initializer": {
+                        "class_name": "GlorotUniform",
+                        "config": {
+                            "seed": null,
+                            "dtype": "float32"
+                        }
+                    },
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "gain": 1.0,
+                            "seed": null,
+                            "dtype": "float32"
+                        }
+                    },
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {
+                            "dtype": "float32"
+                        }
+                    },
+                    "unit_forget_bias": true,
+                    "kernel_regularizer": null,
+                    "recurrent_regularizer": null,
+                    "bias_regularizer": null,
+                    "activity_regularizer": null,
+                    "kernel_constraint": null,
+                    "recurrent_constraint": null,
+                    "bias_constraint": null,
+                    "dropout": 0.0,
+                    "recurrent_dropout": 0.0,
+                    "implementation": 1
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "embedding",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "lstm_1",
+                "class_name": "LSTM",
+                "config": {
+                    "name": "lstm_1",
+                    "trainable": true,
+                    "dtype": "float32",
+                    "return_sequences": true,
+                    "return_state": false,
+                    "go_backwards": false,
+                    "stateful": false,
+                    "unroll": false,
+                    "units": 512,
+                    "activation": "tanh",
+                    "recurrent_activation": "hard_sigmoid",
+                    "use_bias": true,
+                    "kernel_initializer": {
+                        "class_name": "GlorotUniform",
+                        "config": {
+                            "seed": null,
+                            "dtype": "float32"
+                        }
+                    },
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "gain": 1.0,
+                            "seed": null,
+                            "dtype": "float32"
+                        }
+                    },
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {
+                            "dtype": "float32"
+                        }
+                    },
+                    "unit_forget_bias": true,
+                    "kernel_regularizer": null,
+                    "recurrent_regularizer": null,
+                    "bias_regularizer": null,
+                    "activity_regularizer": null,
+                    "kernel_constraint": null,
+                    "recurrent_constraint": null,
+                    "bias_constraint": null,
+                    "dropout": 0.0,
+                    "recurrent_dropout": 0.0,
+                    "implementation": 1
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "lstm",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "time_distributed",
+                "class_name": "TimeDistributed",
+                "config": {
+                    "name": "time_distributed",
+                    "trainable": true,
+                    "dtype": "float32",
+                    "layer": {
+                        "class_name": "Dense",
+                        "config": {
+                            "name": "dense",
+                            "trainable": true,
+                            "dtype": null,
+                            "units": 256,
+                            "activation": "softmax",
+                            "use_bias": true,
+                            "kernel_initializer": {
+                                "class_name": "GlorotUniform",
+                                "config": {
+                                    "seed": null,
+                                    "dtype": "float32"
+                                }
+                            },
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {
+                                    "dtype": "float32"
+                                }
+                            },
+                            "kernel_regularizer": null,
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "kernel_constraint": null,
+                            "bias_constraint": null
+                        }
+                    }
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "lstm_1",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "input_layers": [
+            [
+                "seed",
+                0,
+                0
+            ]
+        ],
+        "output_layers": [
+            [
+                "time_distributed",
+                0,
+                0
+            ]
+        ]
+    },
+    "keras_version": "2.1.6-tf",
+    "backend": "tensorflow"
+}
