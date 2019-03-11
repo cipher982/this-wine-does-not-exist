@@ -1,4 +1,7 @@
 .DS_Store
+.ipynb_checkpoints
+.vscode
+__pycache__
 wine/
 data/wine_pages
 .wine
