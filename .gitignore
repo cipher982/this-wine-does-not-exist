@@ -6,3 +6,6 @@ data/wine_pages
 .wine_mac
 .venv
 .venv_w10
+*.h5
+data/model_weights/
+data/model_weights
