@@ -1,7 +1,8 @@
-www.ThisWineDoesNotExist.com
-
 # This wine does not exist
 Training neural networks to generate fake wine names, descriptions, labels, etc . . .
+
+Website: www.ThisWineDoesNotExist.com
+
 
 ![Sample Page](https://raw.githubusercontent.com/cipher982/this-wine-does-not-exist/master/images/sample_page.png)
 
