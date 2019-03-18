@@ -12,3 +12,4 @@ data/wine_pages
 *.h5
 data/model_weights/
 data/model_weights
+images/
