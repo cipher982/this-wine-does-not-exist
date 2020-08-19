@@ -10,5 +10,6 @@ Untitled*
 dnnlib/
 models/
 transformers/
-gpt2_output/
+gpt2*/
+*nlp_ready*
 wandb/
