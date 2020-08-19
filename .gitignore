@@ -11,3 +11,4 @@ dnnlib/
 models/
 transformers/
 gpt2_output/
+wandb/
