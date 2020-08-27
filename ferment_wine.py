@@ -10,7 +10,7 @@ import sys
 def ferment_wine(file_path):
   with open(file_path, 'r', encoding='utf8') as f:
     try:
-      soup = bs4.BeautifulSoup(f)
+      soup = bs4.BeautifulSoup(f, parser='lxml')
 
       # Extract name
       wine_name = soup.find('h1',attrs={'itemprop':'name'}).text
@@ -59,11 +59,10 @@ def ferment_wine(file_path):
         },
         index=[0]
       )
-      
-      wine_df.append(wine_row)
-      return 
+  
+      return wine_row
       
     except:
       e = sys.exc_info()[0]
-      return (file_path, traceback.format_exc())
+      print(file_path, traceback.format_exc())
       
