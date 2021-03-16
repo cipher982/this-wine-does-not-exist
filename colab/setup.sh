@@ -1,5 +1,11 @@
 #!/bin/sh
 
+apt-get purge nvidia*
+apt-get autoremove
+
+wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda_11.1.0_455.23.05_linux.runsudo
+cuda_11.1.0_455.23.05_linux.run
+
 python3 -m pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
 python3 -m pip install wandb pytorch_lightning mpi4py deepspeed
 
