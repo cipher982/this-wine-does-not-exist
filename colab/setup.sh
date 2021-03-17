@@ -8,21 +8,42 @@
 #apt-get update
 #apt-get install cuda # gets cuda 11.2
 
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
-sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
-sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
-sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
-sudo apt-get updatesudo apt-get -y install cuda
+while getopts cit flag
+do
+    case "${flag}" in
+        i) install=true;;
+        t) transformers=true;;
+        c) colab=true;;
 
-python3 -m pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
-python3 -m pip install wandb pytorch_lightning deepspeed mpi4py
+    esac
+done
+echo "Colab: $colab";
+echo "Install: $install";
 
-git clone https://github.com/huggingface/transformers
-cd transformers
-git checkout 7e662e6a3be0ece4 
-python3 -m pip install .
+if [ "$install" == true ]; then
+    echo "Installing CUDA"
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
+    sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
+    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+    sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
+    sudo apt-get updatesudo apt-get -y install cuda
 
-#cd examples/seq2seq
-#python3 -m pip install -r requirements.txt
-#wget https://cdn-datasets.huggingface.co/translation/wmt_en_ro.tar.gz
-#tar -xzvf wmt_en_ro.tar.gz
+    python3 -m pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
+    python3 -m pip install wandb pytorch_lightning deepspeed mpi4py
+fi
+
+if [ "$transformers" == true ]; then
+    echo "Installing Transformers"
+    git clone https://github.com/huggingface/transformers
+    cd transformers
+    git checkout 7e662e6a3be0ece4 
+    python3 -m pip install .
+    cd ..
+fi
+
+if [ "$colab" == true ]; then
+    gdrive_base="/content/drive/MyDrive/data/wine/"
+    wine_file="name_desc_nlp_ready_test.txt"
+    echo "Creating symlink from $gdrive_base$wine_file"
+    ln -s  "$gdrive_base$wine_file" "/root/"
+fi
