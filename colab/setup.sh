@@ -18,11 +18,12 @@ echo "Install: $install";
 if [ "$install" == true ]; then
     echo "Installing CUDA"
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
-    sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
+    mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
     wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda-repo-ubuntu1804-11-1-local_11.1.0-455.23.05-1_amd64.deb
-    sudo dpkg -i cuda-repo-ubuntu1804-11-1-local_11.1.0-455.23.05-1_amd64.deb
-    sudo apt-key add /var/cuda-repo-ubuntu1804-11-1-local/7fa2af80.pub
-    sudo apt-get update
+    dpkg -i cuda-repo-ubuntu1804-11-1-local_11.1.0-455.23.05-1_amd64.deb
+    rm /etc/apt/sources.list.d/nvidia*  /etc/apt/sources.list.d/cuda*
+    apt-key add /var/cuda-repo-ubuntu1804-11-1-local/7fa2af80.pub
+    apt-get update
     sudo apt-get -y install cuda
 
     python3 -m pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
