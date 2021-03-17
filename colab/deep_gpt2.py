@@ -38,6 +38,17 @@ for i in wines_raw:
         pass
 print(f"Cleaned dataset has {len(wines_clean):,} samples")
 
+# Remove wines with too short descriptions
+wines_clean = []
+for i in wines_raw:
+    try:
+        desc = i.split("[description]")[1]
+        if len(desc) > 100:
+            wines_clean.append(i)
+    except:
+        pass
+print(f"Cleaned dataset has {len(wines_clean):,} samples")
+
 tokenizer = transformers.GPT2TokenizerFast.from_pretrained(MODEL_TYPE)
 
 tokenizer.add_special_tokens(
@@ -132,7 +143,7 @@ model_engine, optimizer, trainloader, _ = deepspeed.initialize(
     args=args,
     model=model,
     model_parameters=parameters,
-    training_data=data_loader
+    #training_data=data_loader
 )
 
 print("YAYYY!!")

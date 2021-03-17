@@ -3,11 +3,6 @@
 #apt-get purge nvidia*
 #apt-get autoremove
 
-#wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda_11.1.0_455.23.05_linux.run
-#cuda_11.1.0_455.23.05_linux.run
-#apt-get update
-#apt-get install cuda # gets cuda 11.2
-
 while getopts cit flag
 do
     case "${flag}" in
