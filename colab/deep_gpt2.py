@@ -135,4 +135,24 @@ model_engine, optimizer, trainloader, _ = deepspeed.initialize(
     #training_data=data_loader
 )
 
+for step, batch in enumerate(data_loader):
+    print(f"Step: {step}")
+    #forward() method
+    loss = model_engine(
+        input_ids=batch['input_ids'], 
+        attention_mask=batch['attention_mask'],
+        labels=batch['labels']
+    )
+    print(f"Loss: {loss}")
+
+    #runs backpropagation
+    model_engine.backward(loss)
+    print("Back")
+
+    #weight update
+    model_engine.step()
+    print("Step")
+
+
+
 print("YAYYY!!")
