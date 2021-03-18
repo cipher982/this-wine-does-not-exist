@@ -32,7 +32,7 @@ class wineDataset(torch.utils.data.Dataset):
         return item
 
 # Load wine dataset
-wines_path = "/content/drive/MyDrive/data/wine/name_desc_nlp_ready_test.txt"
+wines_path = "./data/name_desc_nlp_ready_test.txt"
 with open(wines_path, 'r') as f:
     wines_raw = f.read().splitlines()
 print(f"Loaded wine dataset of length: {len(wines_raw):,}")
@@ -77,7 +77,7 @@ data_loader = torch.utils.data.DataLoader(wine_dataset, num_workers=0)
 print("Created DataLoader")
 
 # Load model
-model_path = f'/root/{MODEL_TYPE}_model'
+model_path = f'./{MODEL_TYPE}_model'
 if os.path.exists(model_path):
     print(f"Found saved model at {model_path}, loading. . .")
     model = torch.load(model_path)
