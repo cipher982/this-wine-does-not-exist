@@ -9,8 +9,8 @@ Untitled*
 dnnlib/
 models/
 transformers/
-gpt2*/
 *nlp_ready*
 wandb/
 runs/
 data/modeling/
+data/gpt2_runs/
