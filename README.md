@@ -1,13 +1,19 @@
 # This wine does not exist
-Training neural networks to generate fake wine names, descriptions, labels, etc . . .
+The goal for this project is to create an ensemble of various machine learning models that work together to generate synthetic bottles of wine. At a high level this includes generating fake wine names, then generating the attributes and descriptions based on the name, and finally using a GAN to create a label for the bottle based on the synthetic attributes.
 
-**LINK**: www.ThisWineDoesNotExist.com
 
-#### Sample Page:
+### Models at Work
+- *LSTM* - Generate the fake wine names
+- *GPT-2* - Generate the wine attributes and natural language description
+- *Stylegan2* - Generate the label images conditioned on the wine attributes
+
+### Data
+The original version of this project used about 15,000 pages of wines scraped from www.wine.com and then cleaned up for use in the models. Version 2 has been updated with over 130,000 wines now, and the models are all being re-trained with this new data as of 2020-03-18.
+
+**LINK**: www.ThisWineDoesNotExist.com (still using all v1 models)
+
+### Sample Page:
 ----
 ![Sample Page](https://raw.githubusercontent.com/cipher982/this-wine-does-not-exist/master/images/sample_page.png)
 ----
-I originally Scraped ~15,000 wines and their data from the www.Wine.com and then trained various TensorFlow/Keras models to generate new wine names and descriptions, price, and labels.
 
-### Models at Work
-This project includes various different models trained for specific purposes. There is one for generating names that operates completely at random I use as a starting point. I have then trained another for the descriptions that uses the names as a seed. The (real) names and descriptions (as opposed to the fake ones I just created) were passed through a quick model of embedding, convolution, and a dense layer to linearly predict the numeric price value. This is then run on the recently made fake data. 
