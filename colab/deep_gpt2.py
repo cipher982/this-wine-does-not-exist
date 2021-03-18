@@ -5,8 +5,18 @@ import pickle
 import torch
 import transformers
 import deepspeed
+import wandb
 
-MODEL_TYPE = 'distilgpt2'
+os.environ['TOKENIZERS_PARALLELISM'] = "false"
+
+MODEL_TYPE = 'gpt2-large'
+
+# wandb setup
+with open('./.wandb/api_key', 'r') as f:
+    wandb_api_key = f.read()
+print(f"WandB API Key: {wandb_api_key}")
+wandb.login(anonymous='never', key=wandb_api_key)
+wandb.init(project=f"wine_{MODEL_TYPE}_deepspeed")
 
 # Setup PyTorch Dataset subclass
 class wineDataset(torch.utils.data.Dataset):
@@ -132,27 +142,34 @@ model_engine, optimizer, trainloader, _ = deepspeed.initialize(
     args=args,
     model=model,
     model_parameters=parameters,
-    #training_data=data_loader
 )
 
 for step, batch in enumerate(data_loader):
-    print(f"Step: {step}")
-    #forward() method
-    loss = model_engine(
+
+    # Forward
+    batch['input_ids'] = batch['input_ids'].to('cuda')
+    batch['attention_mask'] = batch['attention_mask'][0,:].to('cuda')
+    batch['labels'] = batch['labels'][0,:].to('cuda')
+    
+    output = model_engine(
         input_ids=batch['input_ids'], 
         attention_mask=batch['attention_mask'],
         labels=batch['labels']
     )
-    print(f"Loss: {loss}")
+    loss = output['loss']
 
-    #runs backpropagation
+    # Runs backpropagation
     model_engine.backward(loss)
-    print("Back")
 
-    #weight update
+    # Log metrics
+    wandb.log({
+        "step": step, 
+        "loss": loss,
+        "attention_tokens": batch['attention_mask'].sum().item()
+    })
+
+    # Weight update
     model_engine.step()
-    print("Step")
-
 
 
 print("YAYYY!!")
