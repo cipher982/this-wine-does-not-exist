@@ -12,7 +12,7 @@ The original version of this project used about 15,000 pages of wines scraped fr
 
 **LINK**: www.ThisWineDoesNotExist.com (still using all v1 models)
 
-### Sample Page:
+### Sample Page
 
 ![Sample Page](https://raw.githubusercontent.com/cipher982/this-wine-does-not-exist/master/images/page_sample.png)
 
