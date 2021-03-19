@@ -9,10 +9,12 @@ import wandb
 
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 
-MODEL_TYPE = 'gpt2-large'
+MODEL_TYPE = 'gpt2-xl'
 
 # wandb setup
-with open('./.wandb/api_key', 'r') as f:
+api_key_path = "./.wandb/api_key"
+os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
+with open(api_key_path, 'r') as f:
     wandb_api_key = f.read()
 print(f"WandB API Key: {wandb_api_key}")
 wandb.login(anonymous='never', key=wandb_api_key)
@@ -32,7 +34,7 @@ class wineDataset(torch.utils.data.Dataset):
         return item
 
 # Load wine dataset
-wines_path = "./data/name_desc_nlp_ready_test.txt"
+wines_path = "../data/scraped/name_desc_nlp_ready.txt"
 with open(wines_path, 'r') as f:
     wines_raw = f.read().splitlines()
 print(f"Loaded wine dataset of length: {len(wines_raw):,}")

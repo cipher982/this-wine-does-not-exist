@@ -25,7 +25,7 @@ if [ "$install" == true ]; then
     apt-key add /var/cuda-repo-ubuntu1804-11-1-local/7fa2af80.pub
     apt-get update
     apt-get install aptitude
-    aptitude install cuda
+    aptitude install cuda libopenmpi-dev
 
     #rm /etc/apt/sources.list.d/nvidia*  /etc/apt/sources.list.d/cuda*
     #wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
@@ -35,8 +35,9 @@ if [ "$install" == true ]; then
     #sudo apt-get update
     #sudo apt-get -y install cuda
 
+    apt install python3-pip
     python3 -m pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
-    python3 -m pip install wandb pytorch_lightning deepspeed mpi4py
+    python3 -m pip install dill wandb pytorch_lightning deepspeed mpi4py
 fi
 
 if [ "$transformers" == true ]; then
