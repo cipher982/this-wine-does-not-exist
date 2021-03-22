@@ -1,35 +1,33 @@
 import argparse
-import dill
 import os
+from pathlib import Path
 import pickle
+
+import deepspeed
 import torch
 import transformers
-import deepspeed
 import wandb
 
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 MODEL_TYPE = 'distilgpt2'
 
-api_key_path = "./.wandb/api_key"
-os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
-with open(api_key_path, 'r') as f:
-    wandb_api_key = f.read()
-
 def add_argument():
     parser = argparse.ArgumentParser(description='gpt2-wine')
 
-    # cuda
     parser.add_argument('--with_cuda',
                         default=False,
                         action='store_true',
                         help='use CPU in case there\'s no GPU support')
-
-    # train
-    parser.add_argument('-b',
-                        '--batch_size',
+    parser.add_argument('-tb',
+                        '--train_batch_size',
                         default=1,
                         type=int,
-                        help='batch size (default: 1)')
+                        help='train? batch size (default: 1)')
+    parser.add_argument('-tmb',
+                        '--train_micro_batch_size_per_gpu',
+                        default=1,
+                        type=int,
+                        help='train_micro_batch_size_per_gpu (default: 1)')                 
     parser.add_argument('-e',
                         '--epochs',
                         default=1,
@@ -73,9 +71,6 @@ if args.load_dir is not None:
 else:
     resume_training = False
 
-
-print(f"WandB API Key: {wandb_api_key}")
-#wandb.login(anonymous='never', key=wandb_api_key)
 wandb.init(project=f"wine_{MODEL_TYPE}_deepspeed", resume=resume_training)
 
 # Setup PyTorch Dataset subclass
@@ -92,7 +87,7 @@ class wineDataset(torch.utils.data.Dataset):
         return item
 
 # Load wine dataset
-wines_path = "../data/scraped/name_desc_nlp_ready.txt"
+wines_path = "/home/drose/this-wine-does-not-exist/data/scraped/name_desc_nlp_ready.txt"
 with open(wines_path, 'r') as f:
     wines_raw = f.read().splitlines()
 print(f"Loaded wine dataset of length: {len(wines_raw):,}")
@@ -102,7 +97,7 @@ wines_clean = []
 for i in wines_raw:
     try:
         desc = i.split("[description]")[1]
-        if len(desc) > 100:
+        if len(desc) > 150:
             wines_clean.append(i)
     except:
         pass
@@ -123,7 +118,7 @@ tokenizer.pad_token = tokenizer.eos_token
 #tokenizer.save_pretrained('drive/MyDrive/data/wine/gpt2_large/')
 print("Created tokenizer")
 
-wine_encodings = tokenizer(wines_clean, max_length=300, padding=True, truncation=True)
+wine_encodings = tokenizer(wines_clean, max_length=500, padding=True, truncation=True)
 #wine_encodings_train = tokenizer(wines_clean_train, max_length=300, padding=True, truncation=True)
 #wine_encodings_test = tokenizer(wines_raw_test, max_length=200, padding=True, truncation=True)
 print("Encoded dataset")
@@ -136,7 +131,7 @@ print("Created PyTorch DataSet")
 data_loader = torch.utils.data.DataLoader(
     wine_dataset, 
     num_workers=0, 
-    batch_size=args.batch_size
+    batch_size=args.train_batch_size
 )
 print("Created DataLoader")
 
@@ -169,9 +164,8 @@ parameters = filter(lambda p: p.requires_grad, model.parameters())
 model_engine, optimizer, trainloader, _ = deepspeed.initialize(
     args=args,
     model=model,
-    model_parameters=parameters,
+    model_parameters=parameters
 )
-
 
 if resume_training == True:
     # Load checkpoint
@@ -185,9 +179,9 @@ else:
 
 for step, batch in enumerate(data_loader, start=resume_step+1):
     # Forward
-    batch['input_ids'] = batch['input_ids'].to('cuda')
-    batch['attention_mask'] = batch['attention_mask'][:,:].to('cuda')
-    batch['labels'] = batch['labels'][:,:].to('cuda')
+    batch['input_ids'] = batch['input_ids'].to(model_engine.local_rank)
+    batch['attention_mask'] = batch['attention_mask'][:,:].to(model_engine.local_rank)
+    batch['labels'] = batch['labels'][:,:].to(model_engine.local_rank)
     
     output = model_engine(
         input_ids=batch['input_ids'], 
@@ -203,17 +197,19 @@ for step, batch in enumerate(data_loader, start=resume_step+1):
     wandb.log({
         "step": step, 
         "loss": loss,
-        "attention_tokens": batch['attention_mask'].sum().item()
+        "attention_tokens": batch['attention_mask'].sum().item() / args.train_batch_size,
+        "samples_seen": step * args.train_batch_size,
     })
 
     # Weight update
     model_engine.step()
 
     # Save checkpoint
-    if step % args.save_interval:
+    if step % args.save_interval == 0:
         print(f"Saving checkpoint {step}")
         client_sd['step'] = step
         ckpt_id = f"step_{step}_loss_{loss.item()}"
+        Path(os.path.join(args.save_dir, ckpt_id)).mkdir(parents=True, exist_ok=True)
         model_engine.save_checkpoint(args.save_dir, ckpt_id, client_state=client_sd)
 
 
