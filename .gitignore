@@ -14,3 +14,5 @@ wandb/
 runs/
 data/modeling/
 data/gpt2_runs/
+gpt2_deepspeed/distilgpt2_model
+gpt2_deepspeed/gpt2-xl_model
