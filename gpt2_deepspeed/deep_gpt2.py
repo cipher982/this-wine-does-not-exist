@@ -9,7 +9,7 @@ import transformers
 import wandb
 
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
-MODEL_TYPE = 'distilgpt2'
+MODEL_TYPE = "distilgpt2"
 
 def add_argument():
     parser = argparse.ArgumentParser(description='gpt2-wine')
@@ -72,6 +72,7 @@ else:
     resume_training = False
 
 wandb.init(project=f"wine_{MODEL_TYPE}_deepspeed", resume=resume_training)
+wandb.config.update(args)
 
 # Setup PyTorch Dataset subclass
 class wineDataset(torch.utils.data.Dataset):
@@ -104,6 +105,8 @@ for i in wines_raw:
 print(f"Cleaned dataset has {len(wines_clean):,} samples")
 
 tokenizer = transformers.GPT2TokenizerFast.from_pretrained(MODEL_TYPE)
+print("Loaded tokenizer")
+
 
 tokenizer.add_special_tokens(
     {'eos_token':'<|startoftext|>',
@@ -114,18 +117,15 @@ tokenizer.add_tokens(['[prompt]','[response]','[category_1]',
                       '[category_2]','[origin]','[description]',
                       '<|endoftext|>'])
 tokenizer.pad_token = tokenizer.eos_token
-#tokenizer.save_pretrained('data/modeling/gpt2_distil_model/')
-#tokenizer.save_pretrained('drive/MyDrive/data/wine/gpt2_large/')
-print("Created tokenizer")
+print("Modified tokenizer tokens")
+tokenizer_path = f'./tokenizer_{MODEL_TYPE}'
+tokenizer.save_pretrained(tokenizer_path)
+print(f"Saved tokenizer to {tokenizer_path}")
 
-wine_encodings = tokenizer(wines_clean, max_length=500, padding=True, truncation=True)
-#wine_encodings_train = tokenizer(wines_clean_train, max_length=300, padding=True, truncation=True)
-#wine_encodings_test = tokenizer(wines_raw_test, max_length=200, padding=True, truncation=True)
+wine_encodings = tokenizer(wines_clean, max_length=300, padding=True, truncation=True)
 print("Encoded dataset")
 
 wine_dataset = wineDataset(wine_encodings)
-#wine_dataset_train = wineDataset(wine_encodings_train)
-#wine_dataset_test = wineDataset(wine_encodings_test)
 print("Created PyTorch DataSet")
 
 data_loader = torch.utils.data.DataLoader(
@@ -199,13 +199,31 @@ for step, batch in enumerate(data_loader, start=resume_step+1):
         "loss": loss,
         "attention_tokens": batch['attention_mask'].sum().item() / args.train_batch_size,
         "samples_seen": step * args.train_batch_size,
+        "sample": wandb.Table(
+            data=[
+                tokenizer.decode(batch['input_ids'][0,:]).split("<|startoftext|>"),
+                batch['input_ids'][0,:].cpu().data.numpy().tolist()
+            ],
+            columns=["text", "tokens"]
+        )
     })
 
     # Weight update
     model_engine.step()
 
+    # Generate samples
+    #if step % 10 == 0:
+    #    print("Generating samples. . .")
+    #    prompt_1 = tokenizer.encode("<|startoftext|> [prompt] Limour du Coult Cabernet Sauvignon 2016 [response] ")
+    #    prompt_2 = tokenizer.encode("<|startoftext|> [prompt] Cloudy Bay Sauvignon Blanc 2015 [response] ")
+    #    prompt_3 = tokenizer.encode("<|startoftext|> [prompt] Jorge Ordonez Pinot Noir 2017 [response] ")
+    #
+    #    model_engine.generate()
+
+
+
     # Save checkpoint
-    if step % args.save_interval == 0:
+    if step % args.save_interval == 250:
         print(f"Saving checkpoint {step}")
         client_sd['step'] = step
         ckpt_id = f"step_{step}_loss_{loss.item()}"
