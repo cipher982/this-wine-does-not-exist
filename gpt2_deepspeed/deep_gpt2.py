@@ -9,54 +9,73 @@ import transformers
 import wandb
 
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
-MODEL_TYPE = "distilgpt2"
 
 def add_argument():
     parser = argparse.ArgumentParser(description='gpt2-wine')
 
-    parser.add_argument('--with_cuda',
-                        default=False,
-                        action='store_true',
-                        help='use CPU in case there\'s no GPU support')
-    parser.add_argument('-tb',
-                        '--train_batch_size',
-                        default=1,
-                        type=int,
-                        help='train? batch size (default: 1)')
-    parser.add_argument('-tmb',
-                        '--train_micro_batch_size_per_gpu',
-                        default=1,
-                        type=int,
-                        help='train_micro_batch_size_per_gpu (default: 1)')                 
-    parser.add_argument('-e',
-                        '--epochs',
-                        default=1,
-                        type=int,
-                        help='number of total epochs (default: 1)')
-    parser.add_argument('--local_rank',
-                        type=int,
-                        default=-1,
-                        help='local rank passed from distributed launcher')
+    parser.add_argument(
+        '--with_cuda',
+        default=False,
+        action='store_true',
+        help='use CPU in case there\'s no GPU support'
+    )
+    parser.add_argument(
+        '-tb',
+        '--train_batch_size',
+        default=1,
+        type=int,
+        help='train? batch size (default: 1)'
+    )
+    parser.add_argument(
+        '-tmb',
+        '--train_micro_batch_size_per_gpu',
+        default=1,
+        type=int,
+        help='train_micro_batch_size_per_gpu (default: 1)'
+    )                 
+    parser.add_argument(
+        '-e',
+        '--epochs',
+        default=1,
+        type=int,
+        help='number of total epochs (default: 1)'
+    )
+    parser.add_argument(
+        '--local_rank',
+        type=int,
+        default=-1,
+        help='local rank passed from distributed launcher'
+    )
     parser.add_argument(
         '--load_dir',
         type=str,
         default=None,
-        help='Directory to load checkpoint from')
+        help='Directory to load checkpoint from'
+    )
     parser.add_argument(
         '--ckpt_id',
         type=str,
         default='',
-        help='Checkpoint ID to load for model')
+        help='Checkpoint ID to load for model'
+    )
     parser.add_argument(
         '--save_dir',
         type=str,
-        default=f'./deep_{MODEL_TYPE}_ckpt',
-        help='Directory to save checkpoint to')
+        default=f'./deep_gpt2_ckpt',
+        help='Directory to save checkpoint to'
+    )
     parser.add_argument(
         '--save_interval',
         type=int,
         default=1000,
-        help='Step interval for saving checkpoints')
+        help='Step interval for saving checkpoints'
+    )
+    parser.add_argument(
+        '--model_type',
+        type=str,
+        default='distilgpt2',
+        help='Name of model type/size/version from HuggingFace model library'
+    )
 
     # Include DeepSpeed configuration arguments
     parser = deepspeed.add_config_arguments(parser)
@@ -71,17 +90,17 @@ if args.load_dir is not None:
 else:
     resume_training = False
 
-wandb.init(project=f"wine_{MODEL_TYPE}_deepspeed", resume=resume_training)
+wandb.init(project=f"wine_{args.model_type}_deepspeed", resume=resume_training)
 wandb.config.update(args)
 
 # Setup PyTorch Dataset subclass
 class wineDataset(torch.utils.data.Dataset):
     def __init__(self, encodings):
         self.encodings = encodings
-            
+
     def __len__(self):
         return len(self.encodings['input_ids'])
-    
+
     def __getitem__(self, idx):
         item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
         item['labels'] = item['input_ids']
@@ -89,7 +108,7 @@ class wineDataset(torch.utils.data.Dataset):
 
 # Load wine dataset
 wines_path = "/home/drose/this-wine-does-not-exist/data/scraped/name_desc_nlp_ready.txt"
-with open(wines_path, 'r') as f:
+with open(wines_path, 'r', encoding='utf8') as f:
     wines_raw = f.read().splitlines()
 print(f"Loaded wine dataset of length: {len(wines_raw):,}")
 
@@ -104,7 +123,7 @@ for i in wines_raw:
         pass
 print(f"Cleaned dataset has {len(wines_clean):,} samples")
 
-tokenizer = transformers.GPT2TokenizerFast.from_pretrained(MODEL_TYPE)
+tokenizer = transformers.GPT2TokenizerFast.from_pretrained(args.model_type)
 print("Loaded tokenizer")
 
 
@@ -118,11 +137,11 @@ tokenizer.add_tokens(['[prompt]','[response]','[category_1]',
                       '<|endoftext|>'])
 tokenizer.pad_token = tokenizer.eos_token
 print("Modified tokenizer tokens")
-tokenizer_path = f'./tokenizer_{MODEL_TYPE}'
+tokenizer_path = f'./tokenizer_gpt2'
 tokenizer.save_pretrained(tokenizer_path)
 print(f"Saved tokenizer to {tokenizer_path}")
 
-wine_encodings = tokenizer(wines_clean, max_length=300, padding=True, truncation=True)
+wine_encodings = tokenizer(wines_clean, max_length=250, padding=True, truncation=True)
 print("Encoded dataset")
 
 wine_dataset = wineDataset(wine_encodings)
@@ -136,14 +155,14 @@ data_loader = torch.utils.data.DataLoader(
 print("Created DataLoader")
 
 # Load model
-model_path = f'./{MODEL_TYPE}_model'
+model_path = f'./{args.model_type}_model'
 if os.path.exists(model_path):
     print(f"Found cached model at {model_path}, loading. . .")
     model = torch.load(model_path)
     print("Loaded gpt2 model")
 else:
     print(f"Saved model not found, downloading. . .")
-    model = transformers.AutoModelForCausalLM.from_pretrained(MODEL_TYPE)
+    model = transformers.AutoModelForCausalLM.from_pretrained(args.model_type)
     print("Loaded gpt2 model")
 
     # Set config
@@ -199,13 +218,13 @@ for step, batch in enumerate(data_loader, start=resume_step+1):
         "loss": loss,
         "attention_tokens": batch['attention_mask'].sum().item() / args.train_batch_size,
         "samples_seen": step * args.train_batch_size,
-        "sample": wandb.Table(
-            data=[
-                tokenizer.decode(batch['input_ids'][0,:]).split("<|startoftext|>"),
-                batch['input_ids'][0,:].cpu().data.numpy().tolist()
-            ],
-            columns=["text", "tokens"]
-        )
+        #"sample": wandb.Table(
+        #    data=[
+        #        tokenizer.decode(batch['input_ids'][0,:]).split("<|startoftext|>"),
+        #        batch['input_ids'][0,:].cpu().data.numpy().tolist()
+        #    ],
+        #    columns=["text", "tokens"]
+        #)
     })
 
     # Weight update
@@ -223,7 +242,7 @@ for step, batch in enumerate(data_loader, start=resume_step+1):
 
 
     # Save checkpoint
-    if step % args.save_interval == 250:
+    if step % args.save_interval == 0:
         print(f"Saving checkpoint {step}")
         client_sd['step'] = step
         ckpt_id = f"step_{step}_loss_{loss.item()}"
