@@ -17,3 +17,4 @@ data/gpt2_runs/
 gpt2_deepspeed/distilgpt2_model
 gpt2_deepspeed/gpt2-xl_model
 gpt2_deepspeed/run.sh
+gpt2_deepspeed/ds_config_1gpu.json
