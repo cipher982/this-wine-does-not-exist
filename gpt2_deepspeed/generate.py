@@ -7,12 +7,14 @@ import pickle
 import deepspeed
 import pandas as pd
 import torch
+from tqdm import tqdm
 import transformers
 
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 
 LOG = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
 
 def add_argument():
     parser = argparse.ArgumentParser(description='gpt2-wine')
@@ -52,6 +54,8 @@ def add_argument():
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
     return args
+
+
 args = add_argument()
 
 # Load wine names for prompts
@@ -66,7 +70,7 @@ LOG.info(f"Loaded tokenizer with vocab size {tokenizer.vocab_size:,}")
 model_path = f"/home/drose/gpt2-xl_model"
 assert os.path.exists(model_path)
 LOG.info(f"Found cached model at {model_path}, loading. . .")
-model = torch.load(model_path)
+model = torch.load(model_path).to('cuda:0')
 LOG.info("Loaded gpt2 model")
 
 # Initialize DeepSpeed
@@ -78,7 +82,34 @@ model_engine, optimizer, trainloader, _ = deepspeed.initialize(
 )
 _, client_sd = model_engine.load_checkpoint(args.model, tag='step_14000')
 
-# Tokenize a prompt/name
+# Generate some samples!
+generated_descriptions = []
+for sample in tqdm(wine_names[:5]):
+    prompt = f"<|startoftext|> [prompt]\t" + sample + "\t[response]\t"
+    encoded_sample = tokenizer.encode(
+        text=prompt,
+        return_tensors='pt'
+    )
 
-# Generate a sample (beam search?)
+    output_ids = model.generate(
+        encoded_sample.to('cuda:0'),
+        do_sample=True,
+        max_length=300,
+        min_length=80,
+        top_p=0.8,
+        top_k=200,
+        temperature=0.9,
+        eos_token_id=tokenizer.eos_token_id,
+        bos_token_id=tokenizer.bos_token_id,
+        early_stopping=True
+    )
+
+    output_text = tokenizer.decode(
+        token_ids=output_ids[0],
+        skip_special_tokens=True
+    )
+
+    generated_descriptions.append((sample, output_text))
+
+
 pass
