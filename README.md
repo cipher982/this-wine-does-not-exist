@@ -4,7 +4,7 @@ The goal for this project is to create an ensemble of various machine learning m
 
 ### Models at Work
 - *LSTM* - Generate the fake wine names
-- *GPT-2* - Generate the wine attributes and natural language description
+- *GPT-2-XL 1.5b* - Generate the wine attributes and natural language description
 - *Stylegan2* - Generate the label images conditioned on the wine attributes
 
 ### Data
