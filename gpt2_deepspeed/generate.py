@@ -93,22 +93,24 @@ def main():
     )
     _, client_sd = model_engine.load_checkpoint(args.model, tag='step_14000')
 
-    model_engine = model_engine.eval()
-    model = model.eval()
+    #model_engine = model_engine.eval()
+    #model = model.eval()
+    torch.cuda.empty_cache()
+
+    # model.to('cpu')
 
     # Generate some samples!
     with torch.no_grad():
         generated_descriptions = []
-        for ix, sample in tqdm(enumerate(wine_names)):
+        for ix, sample in tqdm(enumerate(wine_names), total=len(wine_names)):
             prompt = f"<|startoftext|> [prompt] " + sample + " [response] "
-            encoded_sample = tokenizer.encode(
-                text=prompt,
-                return_tensors='pt'
-            ).to('cuda:0')
-
+            encoded_ids = tokenizer.encode(text=prompt)
+            if len(encoded_ids) < 18:  # model crashes with fewer than 18 tokens
+                [encoded_ids.insert(0, tokenizer.pad_token_id)
+                 for _ in range(18-len(encoded_ids))]
             try:
                 output_ids = model.generate(
-                    encoded_sample.to('cuda:0'),
+                    torch.IntTensor([encoded_ids]).to('cuda:0'),
                     do_sample=True,
                     max_length=300,
                     min_length=100,
@@ -117,6 +119,7 @@ def main():
                     temperature=0.9,
                     eos_token_id=tokenizer.eos_token_id,
                     bos_token_id=tokenizer.bos_token_id,
+                    pad_token_id=tokenizer.pad_token_id,
                     early_stopping=True
                 )
 
@@ -124,26 +127,28 @@ def main():
                     token_ids=output_ids[0],
                     skip_special_tokens=True
                 )
-                LOG.info(output_text)
+                # LOG.info(output_text)
                 err = 'None'
             except Exception as e:
-                output_text='crashed'
+                output_text = 'crashed'
                 err = str(e)
 
-            generated_descriptions.append((sample, output_ids, output_text, err))
+            LOG.info(f"{sample}: {err}")
+            generated_descriptions.append(
+                (sample, encoded_ids, output_text, err))
 
-            if ix % 50 == 0:
+            if ix % 200 == 0:
                 generated_df = pd.DataFrame(
                     data=generated_descriptions,
                     columns=["name", "tokens", "output", "error_msg"]
                 )
 
                 output_path = Path(
-                    args.output_dir, 
+                    args.output_dir,
                     f"generated_desc_{len(generated_df)}.csv"
                 )
                 generated_df.to_csv(output_path)
 
 
 if __name__ == "__main__":
-	main()
+    main()
