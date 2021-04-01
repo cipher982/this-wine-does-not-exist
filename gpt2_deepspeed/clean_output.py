@@ -1,11 +1,13 @@
 import argparse
 import logging
 from pathlib import Path
+import sys
 
 import pandas as pd
 
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.info)
 
 
 def add_argument():
@@ -31,8 +33,7 @@ def add_argument():
 def clean_dataset(data: pd.DataFrame):
     input_shape = data.shape
     data = data[data['error_msg'] == 'None']
-    LOG.info(
-        "Removed samples with error messages before: {input_shape} after: {data.shape}")
+    LOG.info(f"Removed error samples, shape:{input_shape}->{data.shape}")
     data = data[['name', 'output']].replace('"', '', regex=True)
     LOG.info("Removed superfluous double quotes")
 
@@ -80,14 +81,13 @@ def clean_dataset(data: pd.DataFrame):
 
 def main():
     args = add_argument()
-
     data_input = pd.read_csv(args.dataset)
     LOG.info(f"Loaded {len(data_input)} generated description samples")
 
     data_output = clean_dataset(data_input)
     LOG.info(f"Cleaned dataset with shape: {data_output.shape}")
 
-    save_path = Path(args.output_dir, f"cleaned_gpt_descriptions_{data_output.shape}.csv")
+    save_path = Path(args.output_dir, f"cleaned_gpt_descriptions_{len(data_output)}.csv")
     data_output.to_csv(save_path)
     LOG.info(f"Saved cleaned dataset to {save_path}")
 
