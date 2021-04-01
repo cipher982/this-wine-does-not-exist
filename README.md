@@ -8,7 +8,7 @@ The goal for this project is to create an ensemble of various machine learning m
 - *Stylegan2* - Generate the label images conditioned on the wine attributes
 
 ### Data
-The original version of this project used about 15,000 pages of wines scraped from www.wine.com and then cleaned up for use in the models. Version 2 has been updated with over 130,000 wines now, and the models are all being re-trained with this new data as of 2020-03-18.
+The original release of this project used about 15,000 pages of wines scraped from www.wine.com and then cleaned up for use in the models. v1.1.0 has been updated with over 130,000 wines now, and the data has now been used to re-train the GPT2 model, now with 1.5 billion parameters.
 
 **LINK**: www.ThisWineDoesNotExist.com (still using all v1 models)
 
