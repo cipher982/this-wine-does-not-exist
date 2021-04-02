@@ -14,6 +14,6 @@ The original release of this project used about 15,000 pages of wines scraped fr
 
 ### Sample Page
 
-![Sample Page](https://raw.githubusercontent.com/cipher982/this-wine-does-not-exist/master/images/page_sample.png)
+<img src="https://raw.githubusercontent.com/cipher982/this-wine-does-not-exist/master/images/page_sample.png" alt="sample-wine-page" width="700"/>
 
 
