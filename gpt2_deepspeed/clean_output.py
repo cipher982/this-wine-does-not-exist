@@ -1,9 +1,13 @@
 import argparse
 import logging
+import os
 from pathlib import Path
 import sys
 
+import firebase_admin
+from firebase_admin import credentials, firestore
 import pandas as pd
+from pandas.core.frame import DataFrame
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -76,8 +80,30 @@ def clean_dataset(data: pd.DataFrame):
     data_clean = data_clean[data_clean['category_2'].isin(category_2_valids)]
     LOG.info(f"Removed non-valid categories, new shape: {data_clean.shape}")
 
+    data_clean.reset_index(drop=True, inplace=True)
+    LOG.info("Resetting index")
+
     return data_clean
 
+def batch_data(iterable, n=1):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        yield iterable[ndx:min(ndx + n, l)]
+
+def write_to_firestore(data: pd.DataFrame):
+    cred = credentials.Certificate(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
+    app = firebase_admin.initialize_app(cred)
+    store = firestore.client()
+
+    collection_name = "gpt2-xl-outputs"
+
+    for batched_data in batch_data(data, 499):
+        batch = store.batch()
+        for data_item in batched_data.iterrows():
+            doc_ref = store.collection(collection_name).document()
+            batch.set(doc_ref, data_item[1].to_dict())
+        batch.commit()
+    return None
 
 def main():
     args = add_argument()
@@ -90,6 +116,10 @@ def main():
     save_path = Path(args.output_dir, f"cleaned_gpt_descriptions_{len(data_output)}.csv")
     data_output.to_csv(save_path)
     LOG.info(f"Saved cleaned dataset to {save_path}")
+
+    write_to_firestore(data_output)
+    LOG.info("Finished writing to Firestore")
+
 
 if __name__ == '__main__':
     main()
