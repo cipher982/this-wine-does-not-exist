@@ -7,6 +7,6 @@ for (( class=0; class <=15; class++ ))
 do
 cd $BLUR_DIR
 python3 process.py \
- -i /mnt/h/data/stylegan2_ada_outputs/outputs_00011-9480_$class/ \
- -s "$OUTPUT_PATH_$class.json"
+ -i "/mnt/h/data/stylegan2_ada_outputs/outputs_00011-9480_${class}/" \
+ -s "${OUTPUT_PATH}_${class}.json"
 done
