@@ -102,7 +102,7 @@ tqdm==4.48.2
 traitlets==4.3.3
 -e git+https://github.com/huggingface/transformers.git@2f2aa0c89cab9a77560e6845578f917a61081c67#egg=transformers
 typed-ast==1.4.0
-urllib3==1.25.10
+urllib3==1.26.5
 wandb==0.9.4
 watchdog==0.10.3
 wcwidth @ file:///tmp/build/80754af9/wcwidth_1593447189090/work
