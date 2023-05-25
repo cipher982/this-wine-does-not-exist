@@ -1,3 +1,5 @@
+> Update 2023-05-26: A lot has changed over the years since I created this. I think there are some interesting opportunities for creating a better system with multimodal models and I hope to have them out soon.
+
 # This wine does not exist
 The goal for this project is to create an ensemble of various machine learning models that work together to generate synthetic bottles of wine. At a high level this includes generating fake wine names, then generating the attributes and descriptions based on the name, and finally using a GAN to create a label for the bottle based on the synthetic attributes.
 
