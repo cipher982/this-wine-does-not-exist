@@ -9,11 +9,19 @@ Untitled*
 dnnlib/
 models/
 transformers/
-*nlp_ready*
 wandb/
 runs/
-data/modeling/
-data/gpt2_runs/
+
+# Ignore ALL data except README files
+data/
+!data/README.md
+!data/*/README.md
+
+# Ignore large archives
+*.tar.gz
+wine-dataset-*.tar.gz
+
+# Ignore old GPT2 models
 gpt2_deepspeed/distilgpt2_model
 gpt2_deepspeed/gpt2-xl_model
 gpt2_deepspeed/run.sh
