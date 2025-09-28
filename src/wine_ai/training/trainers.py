@@ -14,28 +14,17 @@ from .configs import TrainingConfig
 
 LOGGER = logging.getLogger(__name__)
 
-try:  # pragma: no cover - optional heavy deps
-    from transformers import (
-        AutoModelForCausalLM,
-        AutoTokenizer,
-        DataCollatorForLanguageModeling,
-        Trainer,
-        TrainingArguments,
-        set_seed,
-    )
-except ImportError:  # pragma: no cover
-    AutoModelForCausalLM = None  # type: ignore
-    AutoTokenizer = None  # type: ignore
-    DataCollatorForLanguageModeling = None  # type: ignore
-    Trainer = None  # type: ignore
-    TrainingArguments = None  # type: ignore
-    set_seed = None  # type: ignore
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
+    set_seed,
+)
 
 
-try:  # pragma: no cover
-    import wandb
-except ImportError:  # pragma: no cover
-    wandb = None  # type: ignore
+import wandb
 
 
 def _prepare_text_column(frame: pd.DataFrame, template: Optional[str]) -> pd.DataFrame:
@@ -67,11 +56,8 @@ def train_language_model(
 ) -> None:
     """Train a language model using the processed dataset."""
 
-    if AutoModelForCausalLM is None or AutoTokenizer is None or Trainer is None:
-        raise ImportError("transformers must be installed to train language models")
 
-    if set_seed is not None:
-        set_seed(config.seed)
+    set_seed(config.seed)
 
     dataset_bundle = load_dataset_with_splits(config.data.dataset_path)
 
@@ -129,7 +115,7 @@ def train_language_model(
     )
 
     report_to = []
-    if config.logging.use_wandb and not disable_wandb and wandb is not None:
+    if config.logging.use_wandb and not disable_wandb:
         report_to = ["wandb"]
         wandb.init(project=config.logging.project or "wine-ai-dataset", name=config.logging.run_name)
 
@@ -142,7 +128,7 @@ def train_language_model(
         learning_rate=config.optimizer.learning_rate,
         weight_decay=config.optimizer.weight_decay,
         warmup_steps=config.trainer.warmup_steps,
-        evaluation_strategy=config.trainer.eval_strategy,
+        eval_strategy=config.trainer.eval_strategy,
         eval_steps=config.trainer.eval_steps,
         save_strategy=config.trainer.save_strategy,
         save_steps=config.trainer.save_steps,
@@ -168,14 +154,14 @@ def train_language_model(
         args=training_args,
         train_dataset=tokenized_train,
         eval_dataset=tokenized_eval,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         data_collator=data_collator,
         callbacks=callbacks,
     )
 
     trainer.train()
 
-    if wandb is not None and config.logging.use_wandb and not disable_wandb and getattr(wandb, "run", None) is not None:
+    if config.logging.use_wandb and not disable_wandb and getattr(wandb, "run", None) is not None:
         wandb.finish()
 
 

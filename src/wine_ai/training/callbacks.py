@@ -5,16 +5,9 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-try:  # pragma: no cover - optional dependencies
-    from transformers import TrainerCallback, PreTrainedTokenizer
-except ImportError:  # pragma: no cover
-    TrainerCallback = object  # type: ignore
-    PreTrainedTokenizer = object  # type: ignore
+from transformers import TrainerCallback, PreTrainedTokenizer
 
-try:  # pragma: no cover
-    import wandb
-except ImportError:  # pragma: no cover
-    wandb = None  # type: ignore
+import wandb
 
 LOGGER = logging.getLogger(__name__)
 
@@ -25,7 +18,7 @@ class SamplePreviewCallback(TrainerCallback):  # type: ignore[misc]
     def __init__(self, tokenizer: PreTrainedTokenizer, interval: int = 500, use_wandb: bool = False) -> None:
         self._tokenizer = tokenizer
         self._interval = max(interval, 1)
-        self._use_wandb = use_wandb and wandb is not None
+        self._use_wandb = use_wandb
 
     def on_log(self, args, state, control, **kwargs):  # pragma: no cover - exercised during training
         step = state.global_step
@@ -49,7 +42,7 @@ class SamplePreviewCallback(TrainerCallback):  # type: ignore[misc]
             )
         text = self._tokenizer.decode(output_ids[0], skip_special_tokens=True)
         LOGGER.info("[step %s] Sample generation: %s", step, text)
-        if self._use_wandb and wandb is not None:
+        if self._use_wandb:
             wandb.log({"preview/sample": text, "preview/step": step})
 
 

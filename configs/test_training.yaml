@@ -4,12 +4,12 @@ data:
   dataset_path: data/processed/wine_training_dataset_v1.parquet
   val_fraction: 0.05
   shuffle_seed: 42
-  max_samples: 1000  # Small for testing
-  max_eval_samples: 100
+  max_samples: 100  # Small for quick testing
+  max_eval_samples: 20
 
 model:
-  base_model: distilgpt2  # Smaller model for testing
-  tokenizer: distilgpt2
+  base_model: sshleifer/tiny-gpt2  # Tiny model for pipeline validation
+  tokenizer: sshleifer/tiny-gpt2
   max_length: 256
   use_lora: false  # Simple fine-tuning for test
 
@@ -29,7 +29,7 @@ trainer:
   save_strategy: steps
   save_steps: 50
   logging_steps: 10
-  max_steps: 100  # Very short test run
+  max_steps: 10  # Quick pipeline validation
   bf16: false
   fp16: false
 

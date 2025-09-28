@@ -36,3 +36,14 @@ data/
 !data/raw/metadata/*.json
 !data/processed/*.json
 !data/processed/*.csv
+
+# Build artifacts
+src/wine_ai_dataset.egg-info/
+*.egg-info/
+
+# UV lock file (auto-generated)
+uv.lock
+
+# Backup files
+*_backup.*
+
