@@ -6,23 +6,33 @@ wine/
 .*
 .*/
 Untitled*
-dnnlib/
-models/
-transformers/
 wandb/
 runs/
 
-# Ignore ALL data except README files
+# Ignore large binary artefacts
+*.tar.gz
+wine-dataset-*.tar.gz
+*.h5
+*.pkl
+
+# Model artefacts
+models/
+!models/README.md
+!models/legacy/README.md
+
+# Environment artefacts
+.tmp_env/
+venv/
+.venv/
+tmp/
+
+# Training artifacts
+artifacts/
+
+# Data directory is gitignored except documentation and metadata JSON files
 data/
 !data/README.md
 !data/*/README.md
-
-# Ignore large archives
-*.tar.gz
-wine-dataset-*.tar.gz
-
-# Ignore old GPT2 models
-gpt2_deepspeed/distilgpt2_model
-gpt2_deepspeed/gpt2-xl_model
-gpt2_deepspeed/run.sh
-gpt2_deepspeed/ds_config_1gpu.json
+!data/raw/metadata/*.json
+!data/processed/*.json
+!data/processed/*.csv

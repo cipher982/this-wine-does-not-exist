@@ -1,20 +1,44 @@
-> Update 2023-05-26: A lot has changed over the years since I created this. I think there are some interesting opportunities for creating a better system with multimodal models and I hope to have them out soon.
+# Wine AI Dataset
 
-# This wine does not exist
-The goal for this project is to create an ensemble of various machine learning models that work together to generate synthetic bottles of wine. At a high level this includes generating fake wine names, then generating the attributes and descriptions based on the name, and finally using a GAN to create a label for the bottle based on the synthetic attributes.
+The largest publicly available wine bottle image + text dataset, refreshed for 2025-era
+multimodal research.
 
-# Link: www.ThisWineDoesNotExist.com
+## Quick Start
+```bash
+# Install dependencies (requires Python 3.11+ and uv)
+uv pip install -e .[dev]
 
-### Models at Work
-- **Name**: (*TensorFlow*) Character embedding layer, LSTM x 2, Dense ASCII output
-- **Description**: (*PyTorch*) GPT2-XL 1.5b parameters, trained on 130,000 samples
-- **Label**: (*TensorFlow*) NVIDIA StyleGAN2 and CV2
+# Regenerate processed datasets if needed
+uv run python scripts/migrate_legacy_data.py
 
-### Data
-The original release of this project used about 15,000 pages of wines scraped from www.wine.com and then cleaned up for use in the models. v1.1.0 has been updated with over 130,000 wines now, and the data has now been used to re-train the GPT2 model, now with 1.5 billion parameters.
+# Inspect the dataset and validate integrity
+uv run python scripts/validate_data.py
 
-### Sample Page
+# Train a language model using the modern pipeline
+uv run wine-train --config configs/train_description.yaml
+```
 
-<img src="https://raw.githubusercontent.com/cipher982/this-wine-does-not-exist/master/images/page_sample.png" alt="sample-wine-page" width="700"/>
+## Dataset Highlights
+- 125,787 unique wines with complete metadata
+- 107,821 validated bottle images (17,966 missing locally)
+- Rich tasting descriptions, URLs, prices, and HTML archives
+- Deterministic train/validation/test splits stored in `data/processed/train_val_test_splits.json`
 
+## Repository Layout
+```
+data/
+  raw/                # Immutable Parquet exports + metadata
+  processed/          # Clean datasets and organized image storage
+  external/           # Synthetic GPT-2 outputs and augmentation artefacts
+src/wine_ai/          # Python package for data, models, training, inference
+scripts/              # Utility scripts (migration, validation, env setup)
+experiments/          # Historical and modern research runs
+notebooks/            # Exploratory analysis and prototyping
+```
 
+## Why This Matters
+- **Irreplaceable data** – wine.com changed structure post-2020; this scrape cannot be repeated.
+- **Research value** – largest paired wine image + text corpus for multimodal modelling.
+- **Commercial potential** – recommendation engines, tasting note generation, virtual label design.
+
+See `DATASET.md` for detailed documentation and `CONTRIBUTING.md` for development guidelines.
