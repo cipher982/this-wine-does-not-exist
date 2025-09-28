@@ -8,14 +8,15 @@ multimodal research.
 # Install dependencies (requires Python 3.11+ and uv)
 uv pip install -e .[dev]
 
-# Regenerate processed datasets if needed
-uv run python scripts/migrate_legacy_data.py
+# Load the dataset in Python
+python -c "from wine_ai.data.loaders import WineDataset; ds = WineDataset.load_latest(); print(f'{len(ds.train)} train samples')"
 
-# Inspect the dataset and validate integrity
-uv run python scripts/validate_data.py
+# Validate data integrity
+uv run wine-validate
 
-# Train a language model using the modern pipeline
-uv run wine-train --config configs/train_description.yaml
+# Train a language model (download model first)
+uv run huggingface-cli download distilgpt2
+uv run wine-train --config configs/test_training.yaml --no-wandb
 ```
 
 ## Dataset Highlights
@@ -28,12 +29,27 @@ uv run wine-train --config configs/train_description.yaml
 ```
 data/
   raw/                # Immutable Parquet exports + metadata
-  processed/          # Clean datasets and organized image storage
+  processed/          # Clean datasets and flat image storage
   external/           # Synthetic GPT-2 outputs and augmentation artefacts
 src/wine_ai/          # Python package for data, models, training, inference
-scripts/              # Utility scripts (migration, validation, env setup)
+configs/              # Training configurations (YAML)
 experiments/          # Historical and modern research runs
-notebooks/            # Exploratory analysis and prototyping
+notebooks/            # Exploratory analysis and prototyping (includes quick-start)
+```
+
+## Python API
+```python
+from wine_ai.data.loaders import WineDataset, WineImageLoader
+
+# Load dataset with train/val/test splits
+dataset = WineDataset.load_latest()
+print(f"Train: {len(dataset.train)} samples")
+
+# Access images
+loader = WineImageLoader()
+sample = dataset.train.iloc[0]
+if loader.exists(sample['image_filename']):
+    image_path = loader.path_for(sample['image_filename'])
 ```
 
 ## Why This Matters

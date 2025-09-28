@@ -16,14 +16,14 @@ November 2019 and March 2020. The original pickle/CSV exports are preserved unde
 | `data/raw/wine_scraped_125k.parquet` | Canonical wine metadata (125,787 rows) |
 | `data/raw/wine_descriptions_230k.parquet` | Supplemental descriptions (230,487 rows) |
 | `data/processed/wine_training_dataset_v1.parquet` | Clean training dataset with categories & regions |
-| `data/processed/wine_images_organized/` | Structured image storage with symlinks for category/region |
+| `data/processed/wine_images_organized/raw_flat/wine_images/` | Flat storage of 107,824 wine bottle images |
 | `data/processed/train_val_test_splits.json` | Deterministic dataset splits |
 | `data/processed/data_quality_report.json` | Validation summary (coverage, prices, categories) |
 
 ## Dataset Splits
-- **Training**: 86,257 wines (80%)
-- **Validation**: 10,782 wines (10%)
-- **Test**: 10,782 wines (10%)
+- **Training**: 100,629 wines (80%)
+- **Validation**: 12,578 wines (10%)
+- **Test**: 12,580 wines (10%)
 - **Missing images**: 17,966 wines (documented in `validation_manifest.csv`)
 
 ## Quality Issues
@@ -32,10 +32,17 @@ November 2019 and March 2020. The original pickle/CSV exports are preserved unde
 - Image quality varies; a subset of downloads failed or produced placeholders.
 - Regional tags are heuristic and should be confirmed before production use.
 
-## Rebuilding the Dataset
-```bash
-uv run python scripts/migrate_legacy_data.py
-uv run python scripts/validate_data.py
+## Working with the Dataset
+```python
+# Load in Python
+from wine_ai.data.loaders import WineDataset
+dataset = WineDataset.load_latest()
+
+# Validate integrity
+uv run wine-validate
+
+# Regenerate from legacy sources (if needed)
+uv run wine-migrate
 ```
 
 ## Metadata
