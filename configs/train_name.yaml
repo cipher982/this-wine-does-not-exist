@@ -1,0 +1,44 @@
+seed: 42
+
+data:
+  dataset_path: data/processed/wine_training_dataset_v1.parquet
+  val_fraction: 0.1
+  shuffle_seed: 42
+  max_samples: null
+  max_eval_samples: null
+
+model:
+  base_model: distilgpt2
+  tokenizer: null
+  max_length: 96
+  use_lora: true
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+
+optimizer:
+  learning_rate: 5.0e-05
+  weight_decay: 0.01
+
+trainer:
+  output_dir: artifacts/name_model
+  epochs: 3
+  per_device_train_batch_size: 16
+  per_device_eval_batch_size: 16
+  gradient_accumulation_steps: 2
+  warmup_steps: 0
+  eval_strategy: steps
+  eval_steps: 200
+  save_strategy: steps
+  save_steps: 200
+  logging_steps: 20
+  max_steps: null
+  bf16: true
+  fp16: false
+
+logging:
+  use_wandb: true
+  project: wine-modernization
+  entity: null
+  run_name: name-generator-dev
+  sample_preview_interval: 500

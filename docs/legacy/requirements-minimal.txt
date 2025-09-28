@@ -1,0 +1,17 @@
+# Minimal requirements to test what we have
+# Start with these, then add ML frameworks based on platform
+
+# Data processing
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.1
+
+# Utilities
+Pillow==10.4.0
+matplotlib==3.9.2
+tqdm==4.66.5
+python-dotenv==1.0.1
+
+# Jupyter for testing
+jupyter==1.0.0
+ipykernel==6.29.5
