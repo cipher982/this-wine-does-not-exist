@@ -15,10 +15,8 @@ wine-dataset-*.tar.gz
 *.h5
 *.pkl
 
-# Model artefacts (root level only)
+# Model artifacts - checkpoints and trained models
 /models/
-!/models/README.md
-!/models/legacy/README.md
 
 # Environment artefacts
 .tmp_env/
@@ -29,25 +27,8 @@ tmp/
 # Training artifacts
 artifacts/
 
-# Data directory is gitignored except documentation and metadata JSON files (root level only)
+# Data directory - all data lives on HuggingFace
 /data/
-!/data/README.md
-!/data/*/README.md
-!/data/raw/metadata/*.json
-!/data/processed/*.json
-!/data/processed/*.csv
-
-# Large datasets - use external storage
-data/processed/*.parquet
-data/processed/*.gzip
-data/processed/wine_images_organized/
-data/raw/*.parquet
-data/external/
-
-# Keep small metadata files
-!data/processed/train_val_test_splits.json
-!data/processed/data_quality_report.json
-!data/processed/README.md
 
 # Build artifacts
 src/wine_ai_dataset.egg-info/
