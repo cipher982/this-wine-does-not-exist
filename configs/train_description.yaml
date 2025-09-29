@@ -8,37 +8,36 @@ data:
   max_eval_samples: null
 
 model:
-  base_model: mistralai/Mistral-7B-Instruct-v0.3
-  tokenizer: mistralai/Mistral-7B-Instruct-v0.3
-  max_length: 512
-  use_lora: true
-  lora_r: 32
-  lora_alpha: 64
-  lora_dropout: 0.05
+  base_model: gpt2
+  tokenizer: gpt2
+  max_length: 384
+  use_lora: false  # Full fine-tuning for better quality
 
 optimizer:
-  learning_rate: 2.0e-05
+  learning_rate: 3.0e-05
   weight_decay: 0.01
 
 trainer:
-  output_dir: artifacts/desc_model
-  epochs: 2
-  per_device_train_batch_size: 2
-  per_device_eval_batch_size: 2
-  gradient_accumulation_steps: 16
-  warmup_steps: 200
+  output_dir: artifacts/full_wine_model
+  epochs: 3
+  per_device_train_batch_size: 16  # Optimized for M3 Pro Max unified memory
+  per_device_eval_batch_size: 16
+  gradient_accumulation_steps: 2   # Effective batch size: 32
+  warmup_steps: 500
   eval_strategy: steps
-  eval_steps: 100
+  eval_steps: 250
   save_strategy: steps
-  save_steps: 100
-  logging_steps: 20
+  save_steps: 500
+  logging_steps: 50
   max_steps: null
-  bf16: true
-  fp16: false
+  bf16: false  # MPS doesn't support bf16 yet
+  fp16: false  # MPS not recognized as GPU by Accelerate
+  dataloader_num_workers: 0  # MPS works better with 0 workers
+  dataloader_pin_memory: false
 
 logging:
   use_wandb: true
   project: wine-modernization
   entity: null
-  run_name: description-generator-dev
-  sample_preview_interval: 400
+  run_name: full-wine-training-gpt2
+  sample_preview_interval: 200  # Generate samples every 200 steps

@@ -8,8 +8,8 @@ data:
   max_eval_samples: 20
 
 model:
-  base_model: sshleifer/tiny-gpt2  # Tiny model for pipeline validation
-  tokenizer: sshleifer/tiny-gpt2
+  base_model: gpt2
+  tokenizer: gpt2
   max_length: 256
   use_lora: false  # Simple fine-tuning for test
 
