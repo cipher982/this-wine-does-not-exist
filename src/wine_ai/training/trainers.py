@@ -67,7 +67,8 @@ def train_language_model(
     print("=" * 80)
     print(f"📋 Job: {config.logging.run_name or 'Wine Description Generation'}")
     print(f"🎯 Model: {config.model.base_model}")
-    print(f"📊 Dataset: {config.data.dataset_path}")
+    dataset_source = config.data.dataset_path or "HuggingFace: cipher982/wine-text-126k"
+    print(f"📊 Dataset: {dataset_source}")
     print(f"🔢 Max samples: {config.data.max_samples or 'All'}")
     print(f"⚙️  LoRA: {'Enabled' if config.model.use_lora else 'Disabled'}")
     print(f"📈 Epochs: {config.trainer.epochs}")
@@ -76,7 +77,8 @@ def train_language_model(
 
     set_seed(config.seed)
 
-    dataset_bundle = load_dataset_with_splits(config.data.dataset_path)
+    # Use HuggingFace dataset by default, fallback to local path if specified
+    dataset_bundle = load_dataset_with_splits(config.data.dataset_path if config.data.dataset_path else None)
 
     train_frame = dataset_bundle.train.copy()
     eval_frame = dataset_bundle.validation.copy()

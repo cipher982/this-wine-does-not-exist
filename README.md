@@ -6,17 +6,16 @@ multimodal research.
 ## Quick Start
 ```bash
 # Install dependencies (requires Python 3.11+ and uv)
-uv pip install -e .[dev]
+uv pip install -e .
 
-# Load the dataset in Python
-python -c "from wine_ai.data.loaders import WineDataset; ds = WineDataset.load_latest(); print(f'{len(ds.train)} train samples')"
+# Dataset auto-downloads from HuggingFace on first use
+uv run python -c "from wine_ai.data.loaders import WineDataset; ds = WineDataset.load_latest(); print(f'{len(ds.train)} train samples')"
 
-# Validate data integrity
-uv run wine-validate
-
-# Train a language model (download model first)
-uv run huggingface-cli download distilgpt2
+# Quick training pipeline test
 uv run wine-train --config configs/test_training.yaml --no-wandb
+
+# Full production training
+uv run wine-train --config configs/train_description.yaml
 ```
 
 ## Dataset Highlights

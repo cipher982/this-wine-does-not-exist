@@ -37,6 +37,18 @@ data/
 !data/processed/*.json
 !data/processed/*.csv
 
+# Large datasets - use external storage
+data/processed/*.parquet
+data/processed/*.gzip
+data/processed/wine_images_organized/
+data/raw/*.parquet
+data/external/
+
+# Keep small metadata files
+!data/processed/train_val_test_splits.json
+!data/processed/data_quality_report.json
+!data/processed/README.md
+
 # Build artifacts
 src/wine_ai_dataset.egg-info/
 *.egg-info/
@@ -46,4 +58,9 @@ uv.lock
 
 # Backup files
 *_backup.*
+
+# Training artifacts
+artifacts/
+wandb/
+*.log
 

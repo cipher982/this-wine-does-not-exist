@@ -1,7 +1,7 @@
 seed: 42
 
 data:
-  dataset_path: data/processed/wine_training_dataset_v1.parquet
+  dataset_path: null  # Uses HuggingFace dataset: cipher982/wine-text-126k
   val_fraction: 0.05
   shuffle_seed: 42
   max_samples: 100  # Small for quick testing
