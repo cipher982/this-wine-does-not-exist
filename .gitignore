@@ -15,10 +15,10 @@ wine-dataset-*.tar.gz
 *.h5
 *.pkl
 
-# Model artefacts
-models/
-!models/README.md
-!models/legacy/README.md
+# Model artefacts (root level only)
+/models/
+!/models/README.md
+!/models/legacy/README.md
 
 # Environment artefacts
 .tmp_env/
@@ -29,13 +29,13 @@ tmp/
 # Training artifacts
 artifacts/
 
-# Data directory is gitignored except documentation and metadata JSON files
-data/
-!data/README.md
-!data/*/README.md
-!data/raw/metadata/*.json
-!data/processed/*.json
-!data/processed/*.csv
+# Data directory is gitignored except documentation and metadata JSON files (root level only)
+/data/
+!/data/README.md
+!/data/*/README.md
+!/data/raw/metadata/*.json
+!/data/processed/*.json
+!/data/processed/*.csv
 
 # Large datasets - use external storage
 data/processed/*.parquet
