@@ -77,8 +77,7 @@ def train_language_model(
 
     set_seed(config.seed)
 
-    # Use HuggingFace dataset by default, fallback to local path if specified
-    dataset_bundle = load_dataset_with_splits(config.data.dataset_path if config.data.dataset_path else None)
+    dataset_bundle = load_dataset_with_splits()
 
     train_frame = dataset_bundle.train.copy()
     eval_frame = dataset_bundle.validation.copy()

@@ -37,9 +37,6 @@ dependencies = [
 
 [project.scripts]
 wine-train = "wine_ai.training.cli:main"
-wine-generate = "wine_ai.inference.cli:main"
-wine-validate = "wine_ai.cli:validate_main"
-wine-migrate = "wine_ai.cli:migrate_main"
 
 [build-system]
 requires = ["setuptools>=68", "wheel"]
