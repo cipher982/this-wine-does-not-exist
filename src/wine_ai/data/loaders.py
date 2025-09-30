@@ -90,47 +90,15 @@ def load_training_dataframe(path: Path | None = None) -> pd.DataFrame:
 
 
 def load_dataset_with_splits(path: Path | None = None, use_hf: bool = True) -> WineDataset:
-    """Load wine dataset with train/validation/test splits.
+    """Load wine dataset from HuggingFace."""
+    print("📦 Loading dataset from HuggingFace: cipher982/wine-text-126k")
+    hf_dataset = load_dataset("cipher982/wine-text-126k")
 
-    Args:
-        path: Local parquet file path (fallback)
-        use_hf: Use HuggingFace dataset if True (default)
-    """
+    train = hf_dataset["train"].to_pandas()
+    validation = hf_dataset["validation"].to_pandas() if "validation" in hf_dataset else pd.DataFrame()
+    test = hf_dataset["test"].to_pandas() if "test" in hf_dataset else pd.DataFrame()
 
-    if use_hf:
-        try:
-            print("📦 Loading dataset from HuggingFace: cipher982/wine-text-126k")
-            hf_dataset = load_dataset("cipher982/wine-text-126k")
-
-            # Convert HF dataset splits to pandas DataFrames
-            train = hf_dataset["train"].to_pandas()
-            validation = hf_dataset["validation"].to_pandas() if "validation" in hf_dataset else pd.DataFrame()
-            test = hf_dataset["test"].to_pandas() if "test" in hf_dataset else pd.DataFrame()
-
-            print(f"   ✅ Loaded: {len(train):,} train, {len(validation):,} validation, {len(test):,} test")
-            return WineDataset(train=train, validation=validation, test=test)
-
-        except Exception as e:
-            print(f"⚠️  HuggingFace dataset failed: {e}")
-            print("   Falling back to local files...")
-
-    # Fallback to local file loading
-    frame = load_training_dataframe(path)
-
-    if SPLITS_PATH.exists():
-        with SPLITS_PATH.open("r", encoding="utf-8") as fh:
-            indices = json.load(fh)
-        train = frame.loc[indices["train"]].reset_index(drop=True)
-        validation = frame.loc[indices["validation"]].reset_index(drop=True)
-        test = frame.loc[indices["test"]].reset_index(drop=True)
-    else:  # fallback to naive split
-        shuffled = frame.sample(frac=1.0, random_state=42).reset_index(drop=True)
-        train_cut = int(len(shuffled) * 0.8)
-        val_cut = train_cut + int(len(shuffled) * 0.1)
-        train = shuffled.iloc[:train_cut]
-        validation = shuffled.iloc[train_cut:val_cut]
-        test = shuffled.iloc[val_cut:]
-
+    print(f"   ✅ Loaded: {len(train):,} train, {len(validation):,} validation, {len(test):,} test")
     return WineDataset(train=train, validation=validation, test=test)
 
 

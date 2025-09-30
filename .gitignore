@@ -45,3 +45,5 @@ artifacts/
 wandb/
 *.log
 
+
+scratch/
