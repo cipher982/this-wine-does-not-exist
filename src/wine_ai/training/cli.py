@@ -13,7 +13,7 @@ PROMPT_TEMPLATE = (
     "Write a believable wine tasting description that matches the provided metadata.\n"
     "### Input:\n"
     "Name: {name}\n"
-    "Category: {wine_category}\n"
+    "Category: {category}\n"
     "Region: {region}\n"
     "Price: ${price:.2f}\n"
     "### Response:\n{description}"
