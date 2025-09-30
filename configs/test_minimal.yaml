@@ -24,7 +24,7 @@ trainer:
   per_device_eval_batch_size: 2
   gradient_accumulation_steps: 1
   warmup_steps: 0
-  eval_strategy: steps
+  eval_strategy: "no"
   eval_steps: 2
   save_strategy: steps
   save_steps: 2
