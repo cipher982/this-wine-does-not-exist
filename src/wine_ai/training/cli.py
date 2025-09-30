@@ -25,6 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", type=Path, default=Path("configs/train_description.yaml"), help="Training configuration YAML")
     parser.add_argument("--no-wandb", action="store_true", help="Disable Weights & Biases logging")
     parser.add_argument("--prompt-template", type=str, default=None, help="Optional Python format string template")
+    parser.add_argument("--local-rank", type=int, default=-1, help="Local rank for distributed training (automatically set by launcher)")
     return parser.parse_args()
 
 
