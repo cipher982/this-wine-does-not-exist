@@ -111,9 +111,19 @@ def train_language_model(
     print("🤖 Loading model...")
     model = AutoModelForCausalLM.from_pretrained(config.model.base_model)
 
-    # Optimize for Apple Silicon
+    # Device detection and optimization
     import torch
-    if torch.backends.mps.is_available():
+    if torch.cuda.is_available():
+        device_count = torch.cuda.device_count()
+        if device_count > 1:
+            print(f"   🚀 Using {device_count} CUDA GPUs (multi-GPU)")
+            # Multi-GPU will be handled by Trainer automatically
+        else:
+            print(f"   🚀 Using CUDA GPU: {torch.cuda.get_device_name(0)}")
+        # Disable cache for training efficiency
+        if hasattr(model.config, 'use_cache'):
+            model.config.use_cache = False
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
         print("   🚀 Using Metal Performance Shaders (MPS)")
         # Enable memory efficient attention if available
         if hasattr(model.config, 'use_cache'):
@@ -164,11 +174,28 @@ def train_language_model(
         wandb.init(project=config.logging.project or "wine-ai-dataset", name=config.logging.run_name)
         print(f"   W&B project: {config.logging.project}")
 
-    # Calculate effective batch size
+    # Calculate effective batch size (accounting for multi-GPU)
+    import torch
+    world_size = torch.cuda.device_count() if torch.cuda.is_available() else 1
     effective_batch_size = (
         config.trainer.per_device_train_batch_size *
-        config.trainer.gradient_accumulation_steps
+        config.trainer.gradient_accumulation_steps *
+        world_size
     )
+
+    # Auto-configure precision based on hardware
+    use_bf16 = config.trainer.bf16
+    use_fp16 = config.trainer.fp16
+
+    # Override precision for hardware compatibility
+    if torch.cuda.is_available():
+        # CUDA supports both bf16 and fp16, use config values
+        pass
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        # MPS doesn't support bf16/fp16 training yet
+        use_bf16 = False
+        use_fp16 = False
+        print("   ⚠️  Disabling bf16/fp16 for MPS compatibility")
 
     training_args = TrainingArguments(
         output_dir=str(config.trainer.output_dir),
@@ -186,15 +213,17 @@ def train_language_model(
         logging_steps=config.trainer.logging_steps,
         max_steps=config.trainer.max_steps if config.trainer.max_steps is not None else -1,
         report_to=report_to,
-        bf16=config.trainer.bf16,
-        fp16=config.trainer.fp16,
+        bf16=use_bf16,
+        fp16=use_fp16,
         save_total_limit=3,
-        dataloader_pin_memory=False,  # Disable pin memory to avoid MPS warning
+        dataloader_pin_memory=torch.cuda.is_available(),  # Enable for CUDA, disable for MPS/CPU
         logging_first_step=False,  # Reduce initial logging noise
+        ddp_find_unused_parameters=False,  # Optimize multi-GPU training
     )
 
-    print(f"   Effective batch size: {effective_batch_size}")
+    print(f"   Effective batch size: {effective_batch_size} (world_size: {world_size})")
     print(f"   Learning rate: {config.optimizer.learning_rate}")
+    print(f"   Precision: bf16={use_bf16}, fp16={use_fp16}")
     print(f"   Output directory: {config.trainer.output_dir}")
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
