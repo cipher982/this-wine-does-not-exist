@@ -36,7 +36,7 @@ class WineDataset:
 def load_dataset_with_splits() -> WineDataset:
     """Load wine dataset from HuggingFace."""
     print("📦 Loading dataset from HuggingFace: cipher982/wine-text-126k")
-    hf_dataset = load_dataset("cipher982/wine-text-126k")
+    hf_dataset = load_dataset("cipher982/wine-text-126k", data_files="wine_text_126k.parquet")
 
     train = hf_dataset["train"].to_pandas()
     validation = hf_dataset["validation"].to_pandas() if "validation" in hf_dataset else pd.DataFrame()
