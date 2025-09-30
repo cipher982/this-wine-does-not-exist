@@ -8,7 +8,6 @@ from typing import Optional
 import yaml
 from pydantic import BaseModel, Field
 
-from ..data.loaders import DATA_ROOT
 
 
 class DataSection(BaseModel):
