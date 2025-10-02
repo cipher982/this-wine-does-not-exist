@@ -33,7 +33,11 @@ dependencies = [
   "matplotlib>=3.10.6",
   "seaborn>=0.13.2",
   "boto3>=1.40.40",
+  "modal>=1.1.4",
 ]
+
+[project.optional-dependencies]
+modal = ["modal>=0.64.0"]
 
 [project.scripts]
 wine-train = "wine_ai.training.cli:main"

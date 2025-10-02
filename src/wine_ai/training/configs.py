@@ -58,6 +58,17 @@ class LoggingSection(BaseModel):
     sample_preview_interval: int = 500
 
 
+class ModalSection(BaseModel):
+    """Configuration for Modal cloud execution."""
+    enabled: bool = Field(default=False, description="Enable Modal cloud execution")
+    gpu_type: str = Field(default="A100", description="GPU type: T4, A100, L4, H100")
+    gpu_count: int = Field(default=1, ge=1, le=8, description="Number of GPUs")
+    timeout: int = Field(default=7200, description="Function timeout in seconds")
+    cpu_count: int = Field(default=4.0, description="Number of CPU cores")
+    memory: int = Field(default=16, description="Memory in GB")
+    image_tag: Optional[str] = Field(default=None, description="Custom Modal image tag")
+
+
 class TrainingConfig(BaseModel):
     seed: int = 42
     data: DataSection = DataSection()
@@ -65,6 +76,7 @@ class TrainingConfig(BaseModel):
     optimizer: OptimizerSection = OptimizerSection()
     trainer: TrainerSection = TrainerSection()
     logging: LoggingSection = LoggingSection()
+    modal: ModalSection = ModalSection()
 
 
 DEFAULT_CONFIG_PATH = Path("configs/default_training.yaml")
