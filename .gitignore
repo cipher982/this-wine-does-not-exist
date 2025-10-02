@@ -49,3 +49,4 @@ wandb/
 scratch/# Build artifacts
 src/wine_ai_dataset.egg-info/
 *.egg-info/
+scratch/

@@ -1,5 +1,0 @@
-[console_scripts]
-wine-generate = wine_ai.inference.cli:main
-wine-migrate = wine_ai.cli:migrate_main
-wine-train = wine_ai.training.cli:main
-wine-validate = wine_ai.cli:validate_main
