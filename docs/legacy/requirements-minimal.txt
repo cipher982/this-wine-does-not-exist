@@ -7,7 +7,7 @@ pandas==2.2.2
 scikit-learn==1.5.1
 
 # Utilities
-Pillow==10.4.0
+Pillow==13.0.0
 matplotlib==3.9.2
 tqdm==4.66.5
 python-dotenv==1.0.1

@@ -16,7 +16,7 @@ uvicorn==0.25.0
 pydantic==2.5.3
 
 # Utilities
-Pillow==10.1.0
+Pillow==13.0.0
 matplotlib==3.8.2
 tqdm==4.66.1
 python-dotenv==1.0.0
