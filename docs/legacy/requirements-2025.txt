@@ -1,7 +1,7 @@
 # Core ML frameworks - Apple Silicon compatible versions
 tensorflow-macos==2.15.0
 tensorflow-metal==1.1.0  # GPU acceleration on M3
-torch==2.1.0
+torch==2.13.0
 torchvision==0.16.0
 transformers==4.36.0
 
