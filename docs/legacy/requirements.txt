@@ -1,4 +1,4 @@
-﻿astroid==2.2.5
+astroid==2.2.5
 attrs==19.3.0
 backcall==0.2.0
 beautifulsoup4==4.9.1
@@ -95,7 +95,7 @@ terminado==0.8.3
 testpath==0.4.4
 threadpoolctl @ file:///tmp/tmp9twdgx9k/threadpoolctl-2.1.0-py3-none-any.whl
 tokenizers==0.8.1rc2
-torch==1.6.0
+torch==2.13.0
 torchvision==0.7.0
 tornado==6.0.4
 tqdm==4.48.2
