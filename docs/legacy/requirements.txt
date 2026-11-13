@@ -1,4 +1,4 @@
-﻿astroid==2.2.5
+astroid==2.2.5
 attrs==19.3.0
 backcall==0.2.0
 beautifulsoup4==4.9.1
@@ -97,7 +97,7 @@ threadpoolctl @ file:///tmp/tmp9twdgx9k/threadpoolctl-2.1.0-py3-none-any.whl
 tokenizers==0.8.1rc2
 torch==1.6.0
 torchvision==0.7.0
-tornado==6.0.4
+tornado==6.6.1
 tqdm==4.48.2
 traitlets==4.3.3
 -e git+https://github.com/huggingface/transformers.git@2f2aa0c89cab9a77560e6845578f917a61081c67#egg=transformers
